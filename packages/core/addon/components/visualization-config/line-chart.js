@@ -11,7 +11,8 @@
  */
 
 import Component from '@ember/component';
-import { set, get } from '@ember/object';
+import { set, get, computed } from '@ember/object';
+import { inject as service } from '@ember/service';
 import { copy } from 'ember-copy';
 import layout from '../../templates/components/visualization-config/line-chart';
 
@@ -33,6 +34,21 @@ export default Component.extend({
    */
   typePrefix: 'visualization-config/chart-type/',
 
+  /**
+   * @property {Service} naviVisualizations - navi visualizations service
+   */
+  naviVisualizations: service(),
+
+  /**
+   * @property {Boolean} displayStackOption - whether to display the `stacked` toggle
+   */
+  displayStackOption: computed('response.rows', function() {
+    const { type, request, naviVisualizations } = this,
+      visualizationManifest = naviVisualizations.getManifest(type);
+
+    return visualizationManifest.hasGroupBy(request) || visualizationManifest.hasMultipleMetrics(request);
+  }),
+
   actions: {
     /**
      * Method to replace the seriesConfig in visualization config object.
@@ -49,7 +65,7 @@ export default Component.extend({
     /**
      * Updates line chart style
      *
-     * @method
+     * @method onUpdateStyle
      * @param {String} field - which setting is getting updated, currently `curve` and `area`
      * @param {String|Boolean} - value to update the setting with.
      */

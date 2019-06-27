@@ -27,7 +27,8 @@ import { run } from '@ember/runloop';
 const DEFAULT_OPTIONS = {
   style: {
     curve: 'line',
-    area: false
+    area: false,
+    stacked: false
   },
   axis: {
     x: {
@@ -199,19 +200,42 @@ export default Component.extend({
   }),
 
   /**
-   * @property {Object} data - configuration for chart x and y values
+   * @property {Array} seriesData - chart series data
    */
-  dataConfig: computed('firstModel', 'seriesConfig', 'c3ChartType', function() {
+  seriesData: computed('firstModel', 'seriesConfig', function() {
     const request = get(this, 'firstModel.request');
     const rows = get(this, 'firstModel.response.rows');
     const builder = get(this, 'builder');
     const seriesConfig = get(this, 'seriesConfig.config');
-    const seriesData = builder.buildData(rows, seriesConfig, request);
+    return builder.buildData(rows, seriesConfig, request);
+  }),
+
+  /**
+   * @property {Array} seriesDataGroups - chart series groups for stacking
+   */
+  seriesDataGroups: computed('options', 'chartType', 'seriesData', function() {
+    const { chartType, seriesData } = this,
+      options = merge({}, DEFAULT_OPTIONS, this.options),
+      { stacked } = options.style;
+
+    if (stacked && ['line', 'bar'].includes(chartType)) {
+      return seriesData.length ? [Object.keys(seriesData[0]).filter(key => key !== 'x')] : [];
+    }
+
+    return [];
+  }),
+
+  /**
+   * @property {Object} dataConfig - configuration for chart x and y values
+   */
+  dataConfig: computed('c3ChartType', 'seriesData', 'seriesDataGroups', function() {
+    const { c3ChartType, seriesData, seriesDataGroups } = this;
 
     return {
       data: {
-        type: this.c3ChartType,
+        type: c3ChartType,
         json: seriesData,
+        groups: seriesDataGroups,
         selection: {
           enabled: true
         }
