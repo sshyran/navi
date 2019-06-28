@@ -12,7 +12,7 @@
 
 import Component from '@ember/component';
 import { set, get, computed } from '@ember/object';
-import { inject as service } from '@ember/service';
+import { getOwner } from '@ember/application';
 import { copy } from 'ember-copy';
 import layout from '../../templates/components/visualization-config/line-chart';
 
@@ -35,16 +35,11 @@ export default Component.extend({
   typePrefix: 'visualization-config/chart-type/',
 
   /**
-   * @property {Service} naviVisualizations - navi visualizations service
-   */
-  naviVisualizations: service(),
-
-  /**
    * @property {Boolean} displayStackOption - whether to display the `stacked` toggle
    */
-  displayStackOption: computed('response.rows', function() {
-    const { type, request, naviVisualizations } = this,
-      visualizationManifest = naviVisualizations.getManifest(type);
+  displayStackOption: computed('type', 'response.rows', function() {
+    const { type, request } = this,
+      visualizationManifest = getOwner(this).lookup(`manifest:${type}`);
 
     return visualizationManifest.hasGroupBy(request) || visualizationManifest.hasMultipleMetrics(request);
   }),

@@ -23,7 +23,7 @@ module('Unit | Component | line chart', function(hooks) {
   });
 
   test('dataConfig', function(assert) {
-    assert.expect(2);
+    assert.expect(4);
 
     let response = {
         rows: [
@@ -66,11 +66,8 @@ module('Unit | Component | line chart', function(hooks) {
         ]
       };
 
-    let component = this.owner.factoryFor('component:navi-visualizations/line-chart').create(),
-      model = { request, response };
-
-    component.set('model', A([model]));
-    component.set('options', {
+    let options = {
+      style: { stacked: false },
       axis: {
         y: {
           series: {
@@ -87,7 +84,13 @@ module('Unit | Component | line chart', function(hooks) {
           }
         }
       }
-    });
+    };
+
+    let component = this.owner.factoryFor('component:navi-visualizations/line-chart').create(),
+      model = { request, response };
+
+    component.set('model', A([model]));
+    component.set('options', options);
 
     let expectedData = response.rows.map(row => {
       return {
@@ -105,7 +108,13 @@ module('Unit | Component | line chart', function(hooks) {
       'Data config contains json property with values for each x value and each series'
     );
 
-    let options = {
+    assert.deepEqual(
+      component.get('dataConfig.data.groups'),
+      [],
+      'Data config groups is empty when chart is not stacked'
+    );
+
+    options = {
       axis: {
         y: {
           series: {
@@ -143,6 +152,14 @@ module('Unit | Component | line chart', function(hooks) {
     });
 
     assert.deepEqual(component.get('dataConfig.data.json'), expectedData, 'Data config updates with series options');
+
+    component.set('options', Object.assign({}, options, { style: { stacked: true } }));
+
+    assert.deepEqual(
+      component.get('dataConfig.data.groups'),
+      [['Total Page Views', 'Unique Identifiers']],
+      'Data config groups is array of series keys when chart is stacked'
+    );
   });
 
   test('dataSelectionConfig', function(assert) {
@@ -188,7 +205,8 @@ module('Unit | Component | line chart', function(hooks) {
       defaultConfig = {
         style: {
           curve: 'line',
-          area: false
+          area: false,
+          stacked: false
         },
         axis: {
           x: {

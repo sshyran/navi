@@ -213,16 +213,12 @@ export default Component.extend({
   /**
    * @property {Array} seriesDataGroups - chart series groups for stacking
    */
-  seriesDataGroups: computed('options', 'chartType', 'seriesData', function() {
-    const { chartType, seriesData } = this,
+  seriesDataGroups: computed('options', 'seriesData', function() {
+    const { seriesData } = this,
       options = merge({}, DEFAULT_OPTIONS, this.options),
       { stacked } = options.style;
 
-    if (stacked && ['line', 'bar'].includes(chartType)) {
-      return seriesData.length ? [Object.keys(seriesData[0]).filter(key => key !== 'x')] : [];
-    }
-
-    return [];
+    return stacked && seriesData.length ? [Object.keys(seriesData[0]).filter(key => key !== 'x')] : [];
   }),
 
   /**
