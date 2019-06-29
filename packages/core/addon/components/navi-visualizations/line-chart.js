@@ -214,7 +214,7 @@ export default Component.extend({
    * @property {Array} seriesDataGroups - chart series groups for stacking
    */
   seriesDataGroups: computed('options', 'seriesData', function() {
-    const { seriesData } = this,
+    const seriesData = get(this, 'seriesData'),
       options = merge({}, DEFAULT_OPTIONS, this.options),
       { stacked } = options.style;
 
@@ -225,7 +225,9 @@ export default Component.extend({
    * @property {Object} dataConfig - configuration for chart x and y values
    */
   dataConfig: computed('c3ChartType', 'seriesData', 'seriesDataGroups', function() {
-    const { c3ChartType, seriesData, seriesDataGroups } = this;
+    const c3ChartType = get(this, 'c3ChartType'),
+      seriesData = get(this, 'seriesData'),
+      seriesDataGroups = get(this, 'seriesDataGroups');
 
     return {
       data: {
