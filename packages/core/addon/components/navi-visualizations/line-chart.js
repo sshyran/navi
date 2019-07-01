@@ -218,6 +218,22 @@ export default Component.extend({
       options = merge({}, DEFAULT_OPTIONS, this.options),
       { stacked } = options.style;
 
+    /**
+     * if stacked, transform:
+     * [{
+     *   x: {
+     *     displayValue: "Jun 24",
+     *     rawValue: "2019-06-24 00:00:00.000"
+     *   },
+     *   group1: value1,
+     *   group2: value2,
+     *   ...
+     * }, {
+     *  ...
+     * }]
+     * to:
+     * [[ "group1", "group2", ... ]]
+     */
     return stacked && seriesData.length ? [Object.keys(seriesData[0]).filter(key => key !== 'x')] : [];
   }),
 
